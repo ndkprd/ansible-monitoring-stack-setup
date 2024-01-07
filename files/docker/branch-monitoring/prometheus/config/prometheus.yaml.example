@@ -73,75 +73,11 @@ scrape_configs:
 # DNS AREA
 
 
-  - job_name: 'dns-against-trip.ferizy.com'
+  - job_name: 'dns-against-www.google.com'
     scrape_interval: 1m 
     metrics_path: /probe
     params:
-      module: [dns-against-trip.ferizy.com]
-    file_sd_configs:
-      - files:
-          - ./targets/dns_udp_targets.yaml
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: blackbox-exporter:9115
-
-  - job_name: 'dns-against-api-gateway-v2.ferizy.com'
-    scrape_interval: 1m 
-    metrics_path: /probe
-    params:
-      module: [dns-against-api-gateway-v2.ferizy.com]
-    file_sd_configs:
-      - files:
-          - ./targets/dns_udp_targets.yaml
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: blackbox-exporter:9115
-
-  - job_name: 'dns-against-www.ferizy.com'
-    scrape_interval: 1m 
-    metrics_path: /probe
-    params:
-      module: [dns-against-www.ferizy.com]
-    file_sd_configs:
-      - files:
-          - ./targets/dns_udp_targets.yaml
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: blackbox-exporter:9115
-
-  - job_name: 'dns-against-eoffice.asdp.id'
-    scrape_interval: 1m 
-    metrics_path: /probe
-    params:
-      module: [dns-against-eoffice.asdp.id]
-    file_sd_configs:
-      - files:
-          - ./targets/dns_udp_targets.yaml
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: blackbox-exporter:9115
-
-  - job_name: 'dns-against-fidias.asdp.id'
-    scrape_interval: 1m 
-    metrics_path: /probe
-    params:
-      module: [dns-against-fidias.asdp.id]
+      module: [dns-against-www.google.com]
     file_sd_configs:
       - files:
           - ./targets/dns_udp_targets.yaml
