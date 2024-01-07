@@ -6,11 +6,6 @@
 
 
 - targets:
-    - https://eoffice.asdp.id/login
+    - https://www.google.com
   labels:
-    URL: 'https://eoffice.asdp.id/login'
-
-- targets:
-    - https://fidias.asdp.id/login
-  labels:
-    URL: 'https://fidias.asdp.id/login'
+    URL: 'https://www.google.com'
