@@ -1,0 +1,24 @@
+
+- targets:
+    - 10.100.10.2
+  labels:
+    NS_TYPE: 'LOCAL DNS'
+    DNS_SERVER: '10.1.107.2'
+
+- targets:
+    - 8.8.8.8
+  labels:
+    NS_TYPE: 'PUBLIC DNS'
+    DNS_SERVER: '8.8.8.8'
+
+- targets:
+    - 1.1.1.1
+  labels:
+    NS_TYPE: 'PUBLIC DNS'
+    DNS_SERVER: '1.1.1.1'
+
+- targets:
+    - 9.9.9.9
+  labels:
+    NS_TYPE: 'PUBLIC DNS'
+    DNS_SERVER: '9.9.9.9'
