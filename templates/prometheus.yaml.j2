@@ -1,0 +1,92 @@
+global:
+  scrape_interval: 1m
+  scrape_timeout: 15s
+  #evaluation_internal: 1m
+
+scrape_configs:
+
+  - job_name: 'INTERNAL-PROMETHEUS'
+    scrape_interval: 1m
+    static_configs:
+      - targets: ['localhost:9090']
+
+  #- job_name: 'NODE'
+    #static_configs:
+      #- targets: ['node-exporter:9100']
+
+  - job_name: 'NODE-EXPORTER'
+    file_sd_configs:
+      - files:
+          - ./targets/server_targets.yaml
+
+  - job_name: 'ICMP'
+    metrics_path: /probe
+    params:
+      module: [icmp-prober]
+    file_sd_configs:
+      - files:
+          - ./targets/network_device_targets.yaml
+          - ./targets/web_service_host_targets.yaml
+          - ./targets/server_targets.yaml
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  - job_name: 'HTTP-GET'
+    metrics_path: /probe
+    params:
+      module: [http-get-prober]
+    file_sd_configs:
+      - files:
+          - ./targets/web_service_host_targets.yaml
+          - ./targets/web_service_endpoint_targets.yaml
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  - job_name: 'SNMP'
+    metrics_path: /snmp
+    params:
+      module: [if_mib]
+    file_sd_configs:
+      - files:
+          - ./targets/network_device_targets.yaml
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: snmp-exporter:9116
+
+# AUTOMATED CONFIG AREA CREATED FROM ANSIBLE
+# ONE JOB PER HOSTNAME SINCE I COULDN'T DO BETTER
+
+# DNS AREA
+
+{% for prom_web_service_host_target in prom_web_service_host_targets %}
+
+  - job_name: 'dns-against-{{ prom_web_service_host_target.fqdn  }}'
+    scrape_interval: 1m 
+    metrics_path: /probe
+    params:
+      module: [dns-against-{{ prom_web_service_host_target.fqdn }}]
+    file_sd_configs:
+      - files:
+          - ./targets/dns_udp_targets.yaml
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+{% endfor %}

@@ -1,0 +1,145 @@
+---
+- hosts: all
+  become: true
+  gather_facts: yes
+  vars_files:
+    - vars/playbook-vars.yaml
+
+  tasks:
+
+    - name: Set Python interpreter
+      ansible.builtin.set_fact:
+        ansible_python_interpreter: /bin/python3
+
+    - name: Update repo
+      ansible.builtin.yum:
+        name: '*'
+        state: latest
+      tags:
+        - done
+
+    - name: Install basic software
+      ansible.builtin.yum:
+        name: "{{ basic_packages }}"
+        state: latest
+        update_cache: true
+      ignore_errors: yes
+      tags:
+        - done
+
+    - name: Disable firewalld
+      ansible.builtin.systemd:
+        name: firewalld
+        state: stopped
+        enabled: no
+
+    - name: Add docker repository
+      ansible.builtin.shell: yum-config-manager --add-repo https://download.docker.com/linux/{{ ansible_os_family }}/docker-ce.repo
+      args:
+       creates: /etc/yum.repos.d/docker-ce.repo
+      tags:
+        - done
+
+    - name: Install required system packages for Docker
+      ansible.builtin.yum:
+        name:
+          - ca-certificates
+          - python3-pip
+          - python3-setuptools
+        state: latest
+        update_cache: true
+      tags:
+        - done
+
+    - name: Install Docker Module for Python
+      ansible.builtin.pip:
+        name:
+          - docker
+          - docker-compose
+      tags:
+        - done
+
+    - name: Install Docker Engine, containerd, Docker Compose
+      ansible.builtin.yum:
+        name: "{{ docker_packages }}"
+        state: latest
+        update_cache: true
+      tags:
+        - done
+
+    - name: Enable Docker service
+      ansible.builtin.systemd:
+        name: docker
+        enabled: yes
+      tags:
+        - done
+
+    - name: Start Docker service
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+      tags:
+        - done
+
+    - name: Setup docker environment file
+      ansible.builtin.template:
+        src: ./templates/docker.env.j2
+        dest: ./files/docker/branch-monitoring/.env
+      delegate_to: localhost
+
+    - name: Setup Prometheus network devices target file
+      ansible.builtin.template:
+        src: ./templates/prometheus-targets/network_device_targets.yaml.j2
+        dest: ./files/docker/branch-monitoring/prometheus/config/targets/network_device_targets.yaml
+      delegate_to: localhost
+
+    - name: Setup Prometheus server target file
+      ansible.builtin.template:
+        src: ./templates/prometheus-targets/server_targets.yaml.j2
+        dest: ./files/docker/branch-monitoring/prometheus/config/targets/server_targets.yaml
+      delegate_to: localhost
+
+    - name: Setup Prometheus web services hosts target file
+      ansible.builtin.template:
+        src: ./templates/prometheus-targets/web_service_host_targets.yaml.j2
+        dest: ./files/docker/branch-monitoring/prometheus/config/targets/web_service_host_targets.yaml
+      delegate_to: localhost
+
+    - name: Setup Prometheus web service endpoints target file
+      ansible.builtin.template:
+        src: ./templates/prometheus-targets/web_service_endpoint_targets.yaml.j2
+        dest: ./files/docker/branch-monitoring/prometheus/config/targets/web_service_endpoint_targets.yaml
+      delegate_to: localhost
+
+    - name: Setup Prometheus Blackbox Exporter DNS UDP target file
+      ansible.builtin.template:
+        src: ./templates/prometheus-targets/dns_udp_targets.yaml.j2
+        dest: ./files/docker/branch-monitoring/prometheus/config/targets/dns_udp_targets.yaml
+      delegate_to: localhost
+
+    - name: Setup Prometheus Config
+      ansible.builtin.template:
+        src: ./templates/prometheus.yaml.j2
+        dest: ./files/docker/branch-monitoring/prometheus/config/prometheus.yaml
+      delegate_to: localhost
+
+    - name: Setup Prometheus Blackbox Config
+      ansible.builtin.template:
+        src: ./templates/blackbox.yaml.j2
+        dest: ./files/docker/branch-monitoring/blackbox-exporter/config/blackbox.yaml
+      delegate_to: localhost
+
+    - name: Copy docker-compose and container configuration to target host
+      ansible.builtin.copy:
+       src: ./files/
+       dest: /home/{{ ansible_user }}/
+
+    - name: Run the docker-compose file
+      community.docker.docker_compose:
+         project_src: /home/ansible/docker/branch-monitoring
+         files:
+           - docker-compose.yaml
+
+    - name: Print out Traefik, Prometheus, and Grafana URL
+      ansible.builtin.debug:
+        msg: "Traefik: http://traefik.{{ target_host_base_domain }}, Prometheus: http://prometheus.{{ target_host_base_domain }}, Grafana: http://grafana.{{ target_host_base_domain }}."

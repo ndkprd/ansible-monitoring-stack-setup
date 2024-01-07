@@ -1,0 +1,15 @@
+#TARGET LIST FOR NETWORK DEVICES ONLY
+#FIREWALL, ROUTER, SWITCH, ACCESS POINT, ETC
+#IT WILL RUN BLACKBOX-EXPORTER ICMP AND SNMP-EXPORTER JOB AGAINST THEM
+#SO PLEASE MAKE SURE THE TARGET HERE IS ABLE TO BE PINGED (DUH) AND HAVE SNMP AVAILABLE
+#ON THE DEVICE SIDE, PLEASE MAKE SURE THAT IT HAVE 'public' SNMP COMMUNITY ON (AT LEAST) READ
+
+{% for prom_network_device_target in prom_network_device_targets %}
+
+- targets:
+    - {{ prom_network_device_target.ip_address }}
+  labels:
+    DEVICE_TYPE: '{{ prom_network_device_target.device_type }}'
+    HOSTNAME: '{{ prom_network_device_target.hostname }}'
+    LOCATION: '{{ target_host_location }}'
+{% endfor %}

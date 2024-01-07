@@ -1,0 +1,147 @@
+version: '3.8'
+
+services:
+
+  traefik:
+    image: traefik:${traefik_image_version}
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - ${ansible_host}:80:80
+      - ${ansible_host}:443:443
+      - ${ansible_host}:8080:8080
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/config:/etc/traefik/dynamic
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file=true"
+      - "--providers.file.watch=true"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      #- "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      #- "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${target_host_base_domain}`)"
+      #- "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.http.routers.traefik.service=traefik"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      #- "traefik.http.routers.traefik.service=dashboard@internal"
+
+  node-exporter:
+    image: prom/node-exporter:${node_exporter_image_version}
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - 9100:9100
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.node-exporter.rule=Host(`node-exporter.${target_host_base_domain}`)"
+      #- "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.node-exporter.entrypoints=web"
+      - "traefik.http.routers.node-exporter.service=node-exporter"
+      - "traefik.http.services.node-exporter.loadbalancer.server.port=9100"
+
+  blackbox-exporter:
+    container_name: blackbox-exporter
+    image: prom/blackbox-exporter:${blackbox_exporter_image_version}
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      - ./blackbox-exporter/config/:/etc/blackbox_exporter/
+    #ports:
+      #- 9115:9115
+    command: --config.file=/etc/blackbox_exporter/blackbox.yaml
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.blackbox-exporter.rule=Host(`blackbox-exporter.${target_host_base_domain}`)"
+      #- "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.blackbox-exporter.entrypoints=web"
+      - "traefik.http.routers.blackbox-exporter.service=blackbox-exporter"
+      - "traefik.http.services.blackbox-exporter.loadbalancer.server.port=9115"
+
+  snmp-exporter:
+    image: prom/snmp-exporter:${snmp_exporter_image_version}
+    container_name: snmp-exporter
+    restart: unless-stopped
+    volumes:
+      - ./snmp-exporter/config/:/etc/snmp-exporter/
+    ports:
+      #- 9116:9116
+      - ${ansible_host}:116:116/udp
+    command: --config.file=/etc/snmp-exporter/snmp.yaml
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.snmp-exporter.rule=Host(`snmp-exporter.${target_host_base_domain}`)"
+      #- "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.snmp-exporter.entrypoints=web"
+      - "traefik.http.routers.snmp-exporter.service=snmp-exporter"
+      - "traefik.http.services.snmp-exporter.loadbalancer.server.port=9116"
+
+  prometheus:
+    image: prom/prometheus:${prometheus_image_version}
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/config:/etc/prometheus/
+      - ./prometheus/data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - ${ansible_host}:9090:9090
+    user: root
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.${target_host_base_domain}`)"
+      #- "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.entrypoints=web"
+      - "traefik.http.routers.prometheus.service=prometheus"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  grafana:
+    image: grafana/grafana:${grafana_image_version}
+    container_name: grafana
+    privileged: true
+    user: root
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/grafana.ini:/etc/grafana.ini:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=${grafana_admin_user}
+      - GF_SECURITY_ADMIN_PASSWORD=${grafana_admin_password}
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    ports:
+      - ${ansible_host}:3000:3000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.${target_host_base_domain}`)"
+      #- "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.routers.grafana.service=grafana"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"

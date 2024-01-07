@@ -1,0 +1,20 @@
+#TARGET LIST FOR SERVER ONLY
+#IT WILL RUN BLACKBOX-EXPORTER ICMP AND NODE-EXPORTER JOB AGAINST THEM
+#SO PLEASE MAKE SURE THE TARGET HERE IS ABLE TO BE PINGED AND HAVE INSTALLED NODE-EXPORTER
+
+
+- targets:
+    - 10.1.108.254
+  labels:
+    DEVICE_TYPE: 'SERVER'
+    HOSTNAME: 'svr-1'
+    FQDN: 'svr-1.branch-testing.asdp.id'
+    LOCATION: 'branch-location'
+
+- targets:
+    - 10.1.108.200
+  labels:
+    DEVICE_TYPE: 'SERVER'
+    HOSTNAME: 'svr-2'
+    FQDN: 'svr-2.branch-testing.asdp.id'
+    LOCATION: 'branch-location'

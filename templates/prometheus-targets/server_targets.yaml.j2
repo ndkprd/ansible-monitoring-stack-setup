@@ -1,0 +1,14 @@
+#TARGET LIST FOR SERVER ONLY
+#IT WILL RUN BLACKBOX-EXPORTER ICMP AND NODE-EXPORTER JOB AGAINST THEM
+#SO PLEASE MAKE SURE THE TARGET HERE IS ABLE TO BE PINGED AND HAVE INSTALLED NODE-EXPORTER
+
+{% for prom_server_target in prom_server_targets %}
+
+- targets:
+    - {{ prom_server_target.ip_address }}
+  labels:
+    DEVICE_TYPE: 'SERVER'
+    HOSTNAME: '{{ prom_server_target.hostname }}'
+    FQDN: '{{ prom_server_target.hostname }}.{{ target_host_base_domain }}'
+    LOCATION: '{{ target_host_location }}'
+{% endfor %}

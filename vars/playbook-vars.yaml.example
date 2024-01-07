@@ -1,0 +1,75 @@
+#TARGET HOST
+target_host_base_domain: 'domain.tld'
+target_host_location: 'myLocation'
+
+#NEEDED SOFTWARE PACKAGES
+basic_packages:
+  - epel-release
+  - net-tools
+  - tree
+  - nmap
+  - nano
+  - speedtest-cli
+  - curl
+  - yum-utils
+  - git
+docker_packages:
+  - ca-certificates
+  - python3-pip
+  - python3-setuptools
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
+
+#CONTAINER IMAGE VERSION
+traefik_image_version: 'latest'
+grafana_image_version: 'latest'
+prometheus_image_version: 'latest'
+snmp_exporter_image_version: 'latest'
+blackbox_exporter_image_version: 'latest'
+node_exporter_image_version: 'latest'
+
+#CONTAINER ENV
+grafana_admin_user: 'admin'
+grafana_admin_password: 'admin'
+
+#PROMETHEUS TARGET TEMPLATE
+
+#NETWORK DEVICES
+prom_network_device_targets:
+  - ip_address: '10.100.1.1'
+    device_type: 'ROUTER'
+    hostname: 'router'
+  - ip_address: '10.100.1.2'
+    device_type: 'SWITCH'
+    hostname: 'sw-core'
+
+#SERVERS
+prom_server_targets:
+  - ip_address: '10.100.10.11'
+    hostname: 'svr-1'
+  - ip_address: '10.100.10.12'
+    hostname: 'svr-2'
+
+#WEB SERVICE HOSTS
+prom_web_service_host_targets:
+  - fqdn: 'www.google.com'
+    service_type: 'PUBLIC SERVICES'
+  - fqdn: 'www.facebook.com'
+    service_type: 'PUBLIC SERVICES'
+
+#WEB SERVICE ENDPOINT
+prom_web_service_endpoint_targets:
+  - url: 'https://www.google.com/'
+  - url: 'https://www.facebook.com/'
+
+#DNS SERVER
+prom_dns_udp_targets:
+  - host: '10.100.10.2'
+    dns_type: 'LOCAL DNS'
+  - host: '1.1.1.1'
+    dns_type: 'PUBLIC DNS'
+  - host: '9.9.9.9'
+    dns_type: 'PUBLIC DNS'

@@ -1,0 +1,15 @@
+# TARGET LIST FOR WEB SERVICES HOST ONLY (AND NOT THEIR ENDPOINT)
+# IT WILL RUN BLACKBOX-EXPORTER ICMP, HTTP GET, AND DNS PROBE JOB AGAINST THEM
+# SO PLEASE MAKE SURE THE TARGET HERE IS ABLE TO BE PINGED, IS A HTTP/HTTPS WEB SERVER,
+# AND ITS DOMAIN CAN BE QUERIED PROPERLY IN YOUR TARGETED DNS SERVER
+# YOU CAN DEFINE THE DNS SERVER ON THE "dns_server.yaml" FILE
+# FOR WEB SERVICES ENDPOINT/PATH, EDIT THE "web_services_endpoint_targets.yaml" FILE
+
+{% for prom_web_service_host_target in prom_web_service_host_targets %}
+
+- targets:
+    - {{ prom_web_service_host_target.fqdn }}
+  labels:
+    SERVICE_TYPE: '{{ prom_web_service_host_target.service_type }}'
+    FQDN: '{{ prom_web_service_host_target.fqdn }}'
+{% endfor %}

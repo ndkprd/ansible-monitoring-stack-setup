@@ -1,0 +1,8 @@
+{% for prom_dns_udp_target in prom_dns_udp_targets %}
+
+- targets:
+    - {{ prom_dns_udp_target.host }}
+  labels:
+    NS_TYPE: '{{ prom_dns_udp_target.dns_type }}'
+    DNS_SERVER: '{{ prom_dns_udp_target.host }}'
+{% endfor %}

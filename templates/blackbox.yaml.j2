@@ -1,0 +1,48 @@
+modules:
+  icmp-prober:
+    prober: icmp
+    timeout: 5s
+    icmp:
+      preferred_ip_protocol: "ip4"
+      payload_size: 64
+
+  http-get-prober:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      follow_redirects: true
+      fail_if_ssl: false
+      tls_config:
+        insecure_skip_verify: false
+
+  http-post-prober:
+    prober: http
+    http:
+      method: POST
+
+  tcp-connect-prober:
+    prober: tcp
+
+  pop3s-banner-prober:
+    prober: tcp
+    tcp:
+      query_response:
+      - expect: "^+OK"
+      tls: true
+      tls_config:
+        insecure_skip_verify: false
+
+## AUTOMATED CONFIG GENERATED FROM ANSIBLE
+
+{% for prom_web_service_host_target in prom_web_service_host_targets %}
+  dns-against-{{ prom_web_service_host_target.fqdn }}:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "{{ prom_web_service_host_target.fqdn }}"
+      query_type: "A"
+      valid_rcodes:
+        - NOERROR
+
+{% endfor %}

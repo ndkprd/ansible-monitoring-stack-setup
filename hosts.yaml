@@ -1,0 +1,9 @@
+---
+  all:
+
+    vars:
+      ansible_user: ansible
+
+    hosts:
+      branch-server-1:
+        ansible_host: 10.1.108.254

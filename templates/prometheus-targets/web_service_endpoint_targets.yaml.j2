@@ -1,0 +1,13 @@
+# TARGET LIST FOR WEB SERVICES ENDPOINT ONLY (AND NOT THEIR HOST)
+# IT WILL RUN BLACKBOX-EXPORTER HTTP GET AND POST (WIP)
+# SO PLEASE MAKE SURE THE TARGET HERE IS A HTTP/HTTPS WEB SERVER,
+# AND USE HTTP/HTTPS PREFIX ACCORDINGLY
+# FOR WEB SERVICES HOST, EDIT THE "web_service_host_targets.yaml" FILE INSTEAD
+
+{% for prom_web_service_endpoint_target in prom_web_service_endpoint_targets %}
+
+- targets:
+    - {{ prom_web_service_endpoint_target.url }}
+  labels:
+    URL: '{{ prom_web_service_endpoint_target.url }}'
+{% endfor %}

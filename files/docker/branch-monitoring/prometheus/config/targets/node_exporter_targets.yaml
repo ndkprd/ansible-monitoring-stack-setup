@@ -1,0 +1,18 @@
+
+- targets:
+    - 10.1.108.254:9100
+  labels:
+    DEVICE_TYPE: 'SERVER'
+    HOSTNAME: 'svr-1'
+    FQDN: 'svr-1.branch-testing.asdp.id'
+    BRANCH: 'branch-testing'
+    LOCATION: 'branch-location'
+
+- targets:
+    - 10.1.108.200:9100
+  labels:
+    DEVICE_TYPE: 'SERVER'
+    HOSTNAME: 'svr-2'
+    FQDN: 'svr-2.branch-testing.asdp.id'
+    BRANCH: 'branch-testing'
+    LOCATION: 'branch-location'

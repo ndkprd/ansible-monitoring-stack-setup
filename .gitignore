@@ -1,0 +1,3 @@
+./files/docker/branch-monitoring/.env
+./files/docker/branch-monitoring/prometheus/config/*
+./vars/playbook_vars.yaml

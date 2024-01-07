@@ -1,0 +1,16 @@
+# TARGET LIST FOR WEB SERVICES ENDPOINT ONLY (AND NOT THEIR HOST)
+# IT WILL RUN BLACKBOX-EXPORTER HTTP GET AND POST (WIP)
+# SO PLEASE MAKE SURE THE TARGET HERE IS A HTTP/HTTPS WEB SERVER,
+# AND USE HTTP/HTTPS PREFIX ACCORDINGLY
+# FOR WEB SERVICES HOST, EDIT THE "web_service_host_targets.yaml" FILE INSTEAD
+
+
+- targets:
+    - https://eoffice.asdp.id/login
+  labels:
+    URL: 'https://eoffice.asdp.id/login'
+
+- targets:
+    - https://fidias.asdp.id/login
+  labels:
+    URL: 'https://fidias.asdp.id/login'
