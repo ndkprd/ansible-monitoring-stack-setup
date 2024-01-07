@@ -35,47 +35,11 @@ modules:
 
 ## AUTOMATED CONFIG GENERATED FROM ANSIBLE
 
-  dns-against-trip.ferizy.com:
+  dns-against-www.google.com:
     prober: dns
     timeout: 5s
     dns:
-      query_name: "trip.ferizy.com"
-      query_type: "A"
-      valid_rcodes:
-        - NOERROR
-
-  dns-against-api-gateway-v2.ferizy.com:
-    prober: dns
-    timeout: 5s
-    dns:
-      query_name: "api-gateway-v2.ferizy.com"
-      query_type: "A"
-      valid_rcodes:
-        - NOERROR
-
-  dns-against-www.ferizy.com:
-    prober: dns
-    timeout: 5s
-    dns:
-      query_name: "www.ferizy.com"
-      query_type: "A"
-      valid_rcodes:
-        - NOERROR
-
-  dns-against-eoffice.asdp.id:
-    prober: dns
-    timeout: 5s
-    dns:
-      query_name: "eoffice.asdp.id"
-      query_type: "A"
-      valid_rcodes:
-        - NOERROR
-
-  dns-against-fidias.asdp.id:
-    prober: dns
-    timeout: 5s
-    dns:
-      query_name: "fidias.asdp.id"
+      query_name: "www.google.com"
       query_type: "A"
       valid_rcodes:
         - NOERROR
