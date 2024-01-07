@@ -10,11 +10,11 @@
   labels:
     DEVICE_TYPE: 'ROUTER'
     HOSTNAME: 'router'
-    LOCATION: 'branch-location'
+    LOCATION: 'location1'
 
 - targets:
     - 10.100.1.2
   labels:
     DEVICE_TYPE: 'SWITCH'
     HOSTNAME: 'sw-core'
-    LOCATION: 'branch-location'
+    LOCATION: 'location1'
